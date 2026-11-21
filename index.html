@@ -107,7 +107,7 @@ async function derive(pass,salt){const km=await crypto.subtle.importKey('raw',ne
   return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt'])}
 async function dec(path){const r=await fetch(path);if(!r.ok)throw new Error('missing '+path);const buf=new Uint8Array(await r.arrayBuffer());
   return crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12)},KEY,buf.slice(12))}
-const MIME={webp:'image/webp',pdf:'application/pdf'};
+const MIME={webp:'image/webp',jpg:'image/jpeg',pdf:'application/pdf'};
 async function media(name){if(cache[name])return cache[name];const ext=name.split('.').pop();const ab=await dec('m/'+name+'.bin');
   return cache[name]=URL.createObjectURL(new Blob([ab],{type:MIME[ext]||'application/octet-stream'}))}
 function save(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
@@ -194,11 +194,11 @@ async function openItem(id){const i=DATA.items.find(x=>x.id===id);if(!i)return;c
   if(i.kind==='built'){const g=$('#gal');
     g.innerHTML=i.slides.map((s,n)=>`<figure><img data-s="${esc(s)}" alt="Slide ${n+1}"><figcaption><span>Slide ${n+1}</span><a data-d="${esc(s)}" data-n="${n+1}">Download</a></figcaption></figure>`).join('');
     g.querySelectorAll('img').forEach(async im=>{try{im.src=await media(im.dataset.s);im.onclick=()=>{$('#lb img').src=im.src;$('#lb').style.display='grid'}}catch(_){}});
-    g.querySelectorAll('a[data-d]').forEach(a=>a.onclick=async()=>save(await media(a.dataset.d),`${i.id}-slide-${String(a.dataset.n).padStart(2,'0')}.webp`));
+    g.querySelectorAll('a[data-d]').forEach(a=>a.onclick=async()=>save(await media(a.dataset.d),`${i.id}-slide-${String(a.dataset.n).padStart(2,'0')}.jpg`));
     if(i.pdf)$('#dpdf').onclick=async()=>save(await media(i.pdf),`${i.id}-carousel.pdf`);else $('#dpdf').style.display='none';
     $('#dzip').onclick=async e=>{const b=e.target;b.textContent='Preparing...';
       if(!window.JSZip)await new Promise(r=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=r;document.head.appendChild(s)});
-      const z=new JSZip();for(let n=0;n<i.slides.length;n++){const ab=await dec('m/'+i.slides[n]+'.bin');z.file(`${i.id}-slide-${String(n+1).padStart(2,'0')}.webp`,ab)}
+      const z=new JSZip();for(let n=0;n<i.slides.length;n++){const ab=await dec('m/'+i.slides[n]+'.bin');z.file(`${i.id}-slide-${String(n+1).padStart(2,'0')}.jpg`,ab)}
       if(i.pdf)z.file(`${i.id}-carousel.pdf`,await dec('m/'+i.pdf+'.bin'));if(i.caption_li)z.file(`${i.id}-caption-linkedin.txt`,i.caption_li);if(i.asset)z.file(`${i.id}-asset.md`,i.asset);
       save(URL.createObjectURL(await z.generateAsync({type:'blob'})),`${i.id}-carousel.zip`);b.textContent='Download all slides (zip)'}}
 }
