@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -175,8 +175,8 @@ async function openItem(id){const i=DATA.items.find(x=>x.id===id);if(!i)return;c
    <div class="tg" style="margin-top:8px"><span class="tag">${esc(i.status)}</span>${i.value?`<span class="tag">Value: ${esc(i.value)}</span>`:''}${i.magnet?`<span class="tag k">${esc(i.magnet)}</span>`:''}<span class="tag">${esc(i.topic)}</span>${i.stages.map(s=>`<span class="tag">Stage ${s}</span>`).join('')}${i.roles.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}${i.motion.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}</div>
    ${i.verdict?`<div class="warn" style="background:var(--blueBg);color:var(--blue)"><b>QA verdict:</b> ${esc(i.verdict)}</div>`:''}
    ${i.kind==='built'?`<div class="acts"><button class="btn p sm" id="dpdf">Download carousel PDF</button><button class="btn sm" id="dzip">Download all slides (zip)</button></div><h3>Slides</h3><div class="gal" id="gal"></div>`:''}
-   ${sec('Who it is for',i.reader?`<p>${esc(i.reader)}</p>`:'')}${sec('What the reader gets',i.summary&&i.kind!=='bank'?`<p>${esc(i.summary)}</p>`:'')}
-   ${i.kind==='bank'?sec('The substance',`<p>${esc(i.substance)}</p>`)+sec('Visual',`<p>${esc(i.visual)}</p>`):''}
+   ${sec('Who it is for',i.reader?`<p>${esc(i.reader)}</p>`:'')}${sec('What the reader gets',i.summary&&i.kind!=='bank'&&i.kind!=='dialogue'?`<p>${esc(i.summary)}</p>`:'')}
+   ${(i.kind==='bank'||i.kind==='dialogue')?sec('The substance',`<p>${esc(i.substance)}</p>`)+sec('Visual',`<p>${esc(i.visual)}</p>`):''}
    ${sec('Problem the reader has',i.problem?`<p>${esc(i.problem)}</p>`:'')}${sec('Slide arc',pre(i.arc))}
    ${sec('LinkedIn caption',i.caption_li?`<div class="acts"><button class="btn sm" data-copy="caption_li">Copy caption</button></div>${pre(i.caption_li)}`:'')}
    ${sec('Instagram caption',i.caption_ig?`<div class="acts"><button class="btn sm" data-copy="caption_ig">Copy caption</button></div>${pre(i.caption_ig)}`:'')}
