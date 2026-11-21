@@ -105,7 +105,7 @@ const FILT={};          // facet -> Set
 const cache={};
 async function derive(pass,salt){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt'])}
-async function dec(path){const r=await fetch(path+'?k='+SK);if(!r.ok)throw new Error('missing '+path);const buf=new Uint8Array(await r.arrayBuffer());
+async function dec(path){const r=await fetch(path+'?k='+SK,{cache:'no-cache'});if(!r.ok)throw new Error('missing '+path);const buf=new Uint8Array(await r.arrayBuffer());
   return crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12)},KEY,buf.slice(12))}
 const MIME={webp:'image/webp',jpg:'image/jpeg',pdf:'application/pdf'};
 async function media(name){if(cache[name])return cache[name];const ext=name.split('.').pop();const ab=await dec('m/'+name+'.bin');
