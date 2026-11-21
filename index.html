@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>BFS Content CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F7F5;--card:#fff;--ink:#141618;--mute:#5C6169;--faint:#8A9097;--line:#E3E4E1;--blue:#0058F6;--blueBg:#E6EEFF;--green:#0B7A55;--greenBg:#E5F6EE;--red:#B42318;--redBg:#FDECEB;--orange:#B54708;--orangeBg:#FEF0E4;--yellow:#8A6100;--yellowBg:#FEF6DA}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.mono{font-family:'Geist Mono',ui-monospace,monospace}
+/* gate */
+#gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+.gbox{width:min(420px,100%);background:var(--card);border-radius:16px;padding:32px;box-shadow:0 1px 2px rgba(16,40,96,.06),0 20px 50px -20px rgba(16,40,96,.25)}
+.gbox h1{font-size:26px;letter-spacing:-.03em;margin:0 0 6px}.gbox p{color:var(--mute);margin:0 0 20px}
+.gbox input{width:100%;height:46px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font:inherit;margin-bottom:12px}
+.gbox input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.btn{height:42px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:550;color:var(--ink)}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}.btn:hover{filter:brightness(.97)}.btn.sm{height:34px;padding:0 12px;font-size:13.5px;border-radius:10px}
+.err{color:var(--red);font-size:13.5px;min-height:20px;margin-top:8px}
+/* app */
+#app{display:none}
+header.top{position:sticky;top:0;z-index:20;background:rgba(247,247,245,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hin{max-width:1440px;margin:0 auto;padding:12px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:-.03em;font-size:18px}.brand span{color:var(--blue)}
+.tabs{display:flex;gap:4px;background:#ECECE9;padding:4px;border-radius:12px}
+.tabs button{border:0;background:transparent;padding:7px 14px;border-radius:9px;font-weight:550;color:var(--mute)}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(16,40,96,.12)}
+.search{flex:1;min-width:200px;height:40px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font:inherit;background:#fff}
+.wrap{max-width:1440px;margin:0 auto;padding:20px 24px 80px;display:grid;grid-template-columns:270px 1fr;gap:24px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+aside{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding-right:6px}
+@media(max-width:900px){aside{position:static;max-height:none}}
+.fg{margin-bottom:18px}.fg h4{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-family:'Geist Mono',monospace;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;font-size:13px;color:var(--ink);display:inline-flex;gap:6px;align-items:center}
+.chip i{font-style:normal;color:var(--faint);font-size:12px}.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}.chip.on i{color:#CFE0FF}
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}.bar .n{color:var(--mute);margin-right:auto}
+select{height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 10px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--card);border-radius:16px;box-shadow:0 0 0 1px rgba(20,22,24,.07),0 1px 2px rgba(16,40,96,.05);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,88,246,.35),0 12px 28px -12px rgba(16,40,96,.25)}
+.thumb{aspect-ratio:4/5;background:#EFEFED;display:grid;place-items:center;position:relative;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{padding:18px;text-align:left;width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,#F3F4F2,#E9EAE7)}
+.ph b{font:500 13px 'Geist Mono',monospace;color:var(--blue)}.ph span{font-size:20px;font-weight:650;letter-spacing:-.03em;line-height:1.1}
+.badge{position:absolute;top:10px;left:10px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:8px}
+.b-built{background:var(--greenBg);color:var(--green)}.b-idea{background:#fff;color:var(--mute);box-shadow:0 0 0 1px var(--line)}.b-rec{background:var(--yellowBg);color:var(--yellow);left:auto;right:10px}
+.cb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}.cb h3{margin:0;font-size:16.5px;letter-spacing:-.02em;line-height:1.25}
+.tg{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:12px;padding:2px 8px;border-radius:7px;background:#F1F1EE;color:var(--mute)}.tag.k{background:var(--blueBg);color:var(--blue);font-family:'Geist Mono',monospace}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(12,18,34,.45);display:none;z-index:50;overflow:auto;padding:30px 16px}
+.mb{max-width:980px;margin:0 auto;background:var(--card);border-radius:18px;padding:28px 30px 34px;position:relative;box-shadow:0 30px 80px -20px rgba(16,40,96,.5)}
+.x{position:absolute;top:16px;right:16px}
+.mb h2{margin:0 0 6px;font-size:28px;letter-spacing:-.035em;line-height:1.15;padding-right:70px}
+.mb h3{margin:26px 0 8px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-family:'Geist Mono',monospace;font-weight:500}
+.mb p,.mb li{color:#2A2E33}.mb pre{white-space:pre-wrap;background:#F5F5F3;border-radius:12px;padding:14px 16px;font:13.5px/1.55 'Geist Mono',monospace;margin:0;max-height:360px;overflow:auto}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.gal figure{margin:0}.gal img{width:100%;border-radius:10px;box-shadow:0 0 0 1px var(--line);display:block;background:#EFEFED;aspect-ratio:4/5;object-fit:cover;cursor:zoom-in}
+.gal figcaption{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--faint);margin-top:4px}
+.gal a{color:var(--blue);text-decoration:none;font-weight:550;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:700px){.row2{grid-template-columns:1fr}}
+.warn{background:var(--orangeBg);color:var(--orange);border-radius:12px;padding:10px 14px;font-size:14px;margin-top:10px}
+.lbx{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;display:none;place-items:center;padding:20px}.lbx img{max-height:94vh;max-width:94vw;border-radius:10px}
+/* magnets + books */
+.list{display:grid;gap:12px}.li{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 0 0 1px rgba(20,22,24,.07);cursor:pointer}
+.li h3{margin:0 0 4px;font-size:17px;letter-spacing:-.02em}.li p{margin:0;color:var(--mute);font-size:14px}
+.reader{background:#fff;border-radius:16px;padding:30px 36px;box-shadow:0 0 0 1px rgba(20,22,24,.07);font:16px/1.65 Georgia,serif;max-width:900px}
+.reader h1,.reader h2,.reader h3,.reader h4{font-family:Geist,sans-serif;letter-spacing:-.03em}.reader h1{color:var(--blue)}
+.reader table{border-collapse:collapse;width:100%;font:14px Geist,sans-serif;margin:14px 0;display:block;overflow:auto}.reader th{background:#0a2a6b;color:#fff;padding:7px 9px;text-align:left}.reader td{border:1px solid var(--line);padding:7px 9px;vertical-align:top}
+.empty{padding:60px;text-align:center;color:var(--mute)}
+</style>
+</head>
+<body>
+<div id="gate"><form class="gbox" id="gf" autocomplete="off">
+<h1>BFS <span style="color:var(--blue)">Content CRM</span></h1>
+<p>Private. Enter the passphrase to open the content library.</p>
+<input id="pw" type="password" placeholder="Passphrase" autofocus aria-label="Passphrase">
+<button class="btn p" style="width:100%" id="go">Open</button>
+<div class="err" id="err"></div></form></div>
+
+<div id="app">
+<header class="top"><div class="hin">
+<div class="brand">BFS <span>Content CRM</span></div>
+<div class="tabs" id="tabs"><button data-t="posts" class="on">Posts</button><button data-t="magnets">Lead magnets</button><button data-t="books">Books</button></div>
+<input class="search" id="q" placeholder="Search titles, captions, tags, keywords" aria-label="Search">
+</div></header>
+<div id="view"></div>
+</div>
+
+<div id="modal"><div class="mb" id="mb"></div></div>
+<div class="lbx" id="lb"><img alt=""></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+let KEY=null,DATA=null,TAB='posts',Q='',SORT='rec',OPEN=null;
+const FILT={};          // facet -> Set
+const cache={};
+async function derive(pass,salt){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt'])}
+async function dec(path){const r=await fetch(path);if(!r.ok)throw new Error('missing '+path);const buf=new Uint8Array(await r.arrayBuffer());
+  return crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12)},KEY,buf.slice(12))}
+const MIME={webp:'image/webp',pdf:'application/pdf'};
+async function media(name){if(cache[name])return cache[name];const ext=name.split('.').pop();const ab=await dec('m/'+name+'.bin');
+  return cache[name]=URL.createObjectURL(new Blob([ab],{type:MIME[ext]||'application/octet-stream'}))}
+function save(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function saveText(text,name,type='text/plain'){save(URL.createObjectURL(new Blob([text],{type})),name)}
+async function open_(pass){const salt=b64(await (await fetch('salt.txt')).text());KEY=await derive(pass,salt);
+  const ab=await dec('data.bin');DATA=JSON.parse(new TextDecoder().decode(ab))}
+$('#gf').addEventListener('submit',async e=>{e.preventDefault();$('#err').textContent='';$('#go').textContent='Opening...';
+  try{await open_($('#pw').value);try{sessionStorage.setItem('bfs_pw',$('#pw').value)}catch(_){}start()}
+  catch(_){$('#err').textContent='Wrong passphrase.';$('#go').textContent='Open'}});
+(async()=>{let p=null;try{p=sessionStorage.getItem('bfs_pw')}catch(_){}if(p){try{await open_(p);start()}catch(_){}}})();
+
+function start(){$('#gate').style.display='none';$('#app').style.display='block';render()}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;OPEN=null;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('#q').addEventListener('input',e=>{Q=e.target.value.toLowerCase();render()});
+
+const FACETS=[
+ {k:'rec',label:'Recommended',get:i=>i.recommended?['Top 30 pick']:[]},
+ {k:'status',label:'Status',get:i=>[i.status]},
+ {k:'source',label:'Source',get:i=>[i.source]},
+ {k:'topic',label:'Topic',get:i=>[i.topic]},
+ {k:'stage',label:'Stage (ARR)',get:i=>i.stages.map(s=>'Stage '+s)},
+ {k:'role',label:'Role',get:i=>i.roles},
+ {k:'motion',label:'Motion',get:i=>i.motion},
+ {k:'format',label:'Format',get:i=>[String(i.format||'').split(' (')[0].split(' · ')[0]]},
+ {k:'magnet',label:'Lead magnet',get:i=>i.magnet?[i.magnet]:[]},
+ {k:'value',label:'Value for our ICP',get:i=>i.value?[i.value]:[]}];
+const text=i=>[i.id,i.title,i.topic,i.summary,i.reader,i.caption_li,i.magnet,i.substance,i.verdict,(i.roles||[]).join(' '),(i.motion||[]).join(' ')].join(' ').toLowerCase();
+function passes(i,skip){if(Q&&!text(i).includes(Q))return false;
+  for(const f of FACETS){if(f.k===skip)continue;const s=FILT[f.k];if(s&&s.size&&!f.get(i).some(v=>s.has(v)))return false}return true}
+
+function render(){const v=$('#view');
+  if(TAB==='posts')return renderPosts(v);if(TAB==='magnets')return renderMagnets(v);renderBooks(v)}
+
+function renderPosts(v){
+  const items=DATA.items.filter(i=>passes(i));
+  const order={rec:(a,b)=>(b.recommended-a.recommended)||(a.kind==='built'?-1:1)-(b.kind==='built'?-1:1)||a.id.localeCompare(b.id,undefined,{numeric:true}),
+    id:(a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}),title:(a,b)=>a.title.localeCompare(b.title)};
+  items.sort(order[SORT]);
+  const side=FACETS.map(f=>{const counts={};DATA.items.filter(i=>passes(i,f.k)).forEach(i=>f.get(i).forEach(x=>counts[x]=(counts[x]||0)+1));
+    const keys=Object.keys(counts).sort((a,b)=>f.k==='stage'||f.k==='value'?a.localeCompare(b):counts[b]-counts[a]);if(!keys.length)return'';
+    return`<div class="fg"><h4>${f.label}</h4><div class="chips">${keys.map(k=>`<button class="chip${FILT[f.k]&&FILT[f.k].has(k)?' on':''}" data-f="${f.k}" data-v="${esc(k)}">${esc(k)} <i>${counts[k]}</i></button>`).join('')}</div></div>`}).join('');
+  v.innerHTML=`<div class="wrap"><aside><button class="btn sm" id="clr" style="margin-bottom:14px">Clear filters</button>${side}</aside><main>
+   <div class="bar"><div class="n">${items.length} of ${DATA.items.length} posts</div><label>Sort <select id="sort"><option value="rec">Recommended first</option><option value="id">ID</option><option value="title">Title</option></select></label>
+   <button class="btn sm" id="csv">Export CSV</button><button class="btn sm" id="json">Download all data</button></div>
+   ${items.length?`<div class="grid">${items.map(card).join('')}</div>`:'<div class="empty">No posts match these filters.</div>'}</main></div>`;
+  $('#sort').value=SORT;$('#sort').onchange=e=>{SORT=e.target.value;render()};
+  v.querySelectorAll('.chip').forEach(c=>c.onclick=e=>{e.stopPropagation();const f=c.dataset.f,x=c.dataset.v;(FILT[f]??=new Set());FILT[f].has(x)?FILT[f].delete(x):FILT[f].add(x);render()});
+  $('#clr').onclick=()=>{Object.keys(FILT).forEach(k=>delete FILT[k]);$('#q').value='';Q='';render()};
+  v.querySelectorAll('.card').forEach(c=>c.onclick=()=>openItem(c.dataset.id));
+  $('#csv').onclick=()=>{const rows=[['id','source','status','title','topic','stages','roles','motion','format','magnet','value','recommended']];
+    items.forEach(i=>rows.push([i.id,i.source,i.status,i.title,i.topic,i.stages.join('|'),i.roles.join('|'),i.motion.join('|'),i.format,i.magnet,i.value,i.recommended?'yes':'']));
+    saveText(rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\n'),'bfs-content-crm.csv','text/csv')};
+  $('#json').onclick=()=>saveText(JSON.stringify(DATA.items,null,1),'bfs-content-crm.json','application/json');
+  v.querySelectorAll('.thumb img[data-m]').forEach(async im=>{try{im.src=await media(im.dataset.m)}catch(_){}});
+}
+function card(i){const built=i.kind==='built';
+  return`<div class="card" data-id="${esc(i.id)}"><div class="thumb">${built?`<img data-m="${esc(i.thumb)}" alt="">`:`<div class="ph"><b>${esc(i.id)}</b><span>${esc(i.title)}</span></div>`}
+   <span class="badge ${built?'b-built':'b-idea'}">${built?'Built':'Idea'}</span>${i.recommended?'<span class="badge b-rec">Top pick</span>':''}</div>
+   <div class="cb"><h3>${esc(i.title)}</h3><div class="tg">${i.magnet?`<span class="tag k">${esc(i.magnet)}</span>`:''}<span class="tag">${esc(i.topic)}</span>${i.stages.slice(0,3).map(s=>`<span class="tag">Stage ${s}</span>`).join('')}${i.roles.slice(0,2).map(r=>`<span class="tag">${esc(r)}</span>`).join('')}</div></div></div>`}
+
+async function openItem(id){const i=DATA.items.find(x=>x.id===id);if(!i)return;const mb=$('#mb');
+  const sec=(t,b)=>b?`<h3>${t}</h3>${b}`:'';const pre=t=>t?`<pre>${esc(t)}</pre>`:'';
+  mb.innerHTML=`<button class="btn sm x" id="xm">Close</button><div class="mono" style="color:var(--blue);font-size:13px">${esc(i.id)} · ${esc(i.source)}</div><h2>${esc(i.title)}</h2>
+   <div class="tg" style="margin-top:8px"><span class="tag">${esc(i.status)}</span>${i.value?`<span class="tag">Value: ${esc(i.value)}</span>`:''}${i.magnet?`<span class="tag k">${esc(i.magnet)}</span>`:''}<span class="tag">${esc(i.topic)}</span>${i.stages.map(s=>`<span class="tag">Stage ${s}</span>`).join('')}${i.roles.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}${i.motion.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}</div>
+   ${i.verdict?`<div class="warn" style="background:var(--blueBg);color:var(--blue)"><b>QA verdict:</b> ${esc(i.verdict)}</div>`:''}
+   ${i.kind==='built'?`<div class="acts"><button class="btn p sm" id="dpdf">Download carousel PDF</button><button class="btn sm" id="dzip">Download all slides (zip)</button></div><h3>Slides</h3><div class="gal" id="gal"></div>`:''}
+   ${sec('Who it is for',i.reader?`<p>${esc(i.reader)}</p>`:'')}${sec('What the reader gets',i.summary&&i.kind!=='bank'?`<p>${esc(i.summary)}</p>`:'')}
+   ${i.kind==='bank'?sec('The substance',`<p>${esc(i.substance)}</p>`)+sec('Visual',`<p>${esc(i.visual)}</p>`):''}
+   ${sec('Problem the reader has',i.problem?`<p>${esc(i.problem)}</p>`:'')}${sec('Slide arc',pre(i.arc))}
+   ${sec('LinkedIn caption',i.caption_li?`<div class="acts"><button class="btn sm" data-copy="caption_li">Copy caption</button></div>${pre(i.caption_li)}`:'')}
+   ${sec('Instagram caption',i.caption_ig?`<div class="acts"><button class="btn sm" data-copy="caption_ig">Copy caption</button></div>${pre(i.caption_ig)}`:'')}
+   ${sec('Free asset (lead magnet file)',i.asset?`<div class="acts"><button class="btn sm" data-copy="asset">Copy</button><button class="btn sm" id="dasset">Download .md</button></div>${pre(i.asset)}`:'')}
+   ${sec('AI prompt',i.ai_prompt?`<div class="acts"><button class="btn sm" data-copy="ai_prompt">Copy prompt</button></div>${pre(i.ai_prompt)}`:'')}
+   ${sec('Prompt test verdict',pre(i.prompt_verdict))}
+   ${sec('Sources and proof',(i.sources||[]).length?`<ul>${i.sources.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`:'')}
+   ${(i.illustrative||[]).length?sec('Labelled illustrative',`<ul>${i.illustrative.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`):''}
+   ${(i.risks||[]).length?`<div class="warn"><b>Check before posting:</b><ul>${i.risks.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`:''}
+   ${i.needs?`<div class="warn"><b>Needs Sam's approval:</b> ${esc(i.needs)}</div>`:''}`;
+  $('#modal').style.display='block';document.body.style.overflow='hidden';OPEN=id;
+  $('#xm').onclick=closeModal;
+  mb.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(i[b.dataset.copy]);const o=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=o,1200)});
+  if($('#dasset'))$('#dasset').onclick=()=>saveText(i.asset,`${i.id}-asset.md`);
+  if(i.kind==='built'){const g=$('#gal');
+    g.innerHTML=i.slides.map((s,n)=>`<figure><img data-s="${esc(s)}" alt="Slide ${n+1}"><figcaption><span>Slide ${n+1}</span><a data-d="${esc(s)}" data-n="${n+1}">Download</a></figcaption></figure>`).join('');
+    g.querySelectorAll('img').forEach(async im=>{try{im.src=await media(im.dataset.s);im.onclick=()=>{$('#lb img').src=im.src;$('#lb').style.display='grid'}}catch(_){}});
+    g.querySelectorAll('a[data-d]').forEach(a=>a.onclick=async()=>save(await media(a.dataset.d),`${i.id}-slide-${String(a.dataset.n).padStart(2,'0')}.webp`));
+    if(i.pdf)$('#dpdf').onclick=async()=>save(await media(i.pdf),`${i.id}-carousel.pdf`);else $('#dpdf').style.display='none';
+    $('#dzip').onclick=async e=>{const b=e.target;b.textContent='Preparing...';
+      if(!window.JSZip)await new Promise(r=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=r;document.head.appendChild(s)});
+      const z=new JSZip();for(let n=0;n<i.slides.length;n++){const ab=await dec('m/'+i.slides[n]+'.bin');z.file(`${i.id}-slide-${String(n+1).padStart(2,'0')}.webp`,ab)}
+      if(i.pdf)z.file(`${i.id}-carousel.pdf`,await dec('m/'+i.pdf+'.bin'));if(i.caption_li)z.file(`${i.id}-caption-linkedin.txt`,i.caption_li);if(i.asset)z.file(`${i.id}-asset.md`,i.asset);
+      save(URL.createObjectURL(await z.generateAsync({type:'blob'})),`${i.id}-carousel.zip`);b.textContent='Download all slides (zip)'}}
+}
+function closeModal(){$('#modal').style.display='none';document.body.style.overflow='';OPEN=null}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+$('#lb').addEventListener('click',()=>$('#lb').style.display='none');
+addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#lb').style.display==='grid')$('#lb').style.display='none';else closeModal()}});
+
+function renderMagnets(v){
+  const ms=DATA.magnets.filter(m=>!Q||(m.keyword+' '+m.name+' '+m.inside+' '+m.who).toLowerCase().includes(Q));
+  v.innerHTML=`<div class="wrap" style="grid-template-columns:1fr;max-width:1000px"><main><div class="bar"><div class="n">${ms.length} lead magnets. Each is the free file behind a comment keyword.</div></div>
+   <div class="list">${ms.map((m,n)=>`<div class="li" data-n="${n}"><h3><span class="tag k">${esc(m.keyword)}</span> ${esc(String(m.name).slice(0,120))}</h3>
+   <p>${esc(String(m.inside).slice(0,260))}${String(m.inside).length>260?'…':''}</p><div class="tg" style="margin-top:8px"><span class="tag">${esc(m.status)}</span><span class="tag">${esc(m.source)}</span>${m.posts.slice(0,6).map(p=>`<span class="tag">${esc(p)}</span>`).join('')}</div></div>`).join('')}</div></main></div>`;
+  v.querySelectorAll('.li').forEach(el=>el.onclick=()=>{const m=ms[+el.dataset.n];const mb=$('#mb');
+    mb.innerHTML=`<button class="btn sm x" id="xm">Close</button><div class="mono" style="color:var(--blue);font-size:13px">${esc(m.keyword)} · ${esc(m.status)} · ${esc(m.source)}</div><h2>${esc(m.name)}</h2>
+    ${m.who?`<h3>Who it is for</h3><p>${esc(m.who)}</p>`:''}<h3>What is inside</h3><pre>${esc(m.body||m.inside)}</pre>
+    <div class="acts"><button class="btn sm" id="cm">Copy</button><button class="btn sm" id="dm">Download .md</button></div>
+    ${m.posts.length?`<h3>Used by posts</h3><div class="tg">${m.posts.map(p=>`<span class="tag">${esc(p)}</span>`).join('')}</div>`:''}`;
+    $('#modal').style.display='block';document.body.style.overflow='hidden';$('#xm').onclick=closeModal;
+    $('#cm').onclick=async()=>{await navigator.clipboard.writeText(m.body||m.inside)};$('#dm').onclick=()=>saveText(`# ${m.name}\n\n${m.body||m.inside}`,`${m.keyword}.md`)})}
+
+function renderBooks(v){
+  v.innerHTML=`<div class="wrap" style="grid-template-columns:1fr;max-width:1000px"><main><div class="bar"><div class="n">Written books. Read here or download the PDF.</div></div>
+   <div class="list">${DATA.books.map(b=>`<div class="li" data-b="${b.id}"><h3>${esc(b.title)}</h3><p>${esc(b.desc)}</p></div>`).join('')}</div></main></div>`;
+  v.querySelectorAll('.li').forEach(el=>el.onclick=()=>{const b=DATA.books.find(x=>x.id===el.dataset.b);
+    v.innerHTML=`<div class="wrap" style="grid-template-columns:1fr;max-width:960px"><main><div class="bar"><button class="btn sm" id="bk">Back to books</button>${b.pdf?'<button class="btn p sm" id="bp">Download PDF</button>':''}</div><div class="reader">${b.html}</div></main></div>`;
+    $('#bk').onclick=()=>renderBooks(v);if(b.pdf)$('#bp').onclick=async()=>save(await media(b.pdf),b.id+'.pdf');scrollTo(0,0)})}
+</script>
+</body>
+</html>
