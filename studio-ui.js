@@ -106,7 +106,7 @@
         $('#st-vp').style.height = h + 'px';
         const tr = $('#st-tr'); tr.style.width = w * pages.length + 'px';
         tr.innerHTML = pages.map(() => `<div class="sl" style="width:${w}px;height:${h}px"><iframe style="transform:scale(${k})" title="slide"></iframe></div>`).join('');
-        [...tr.querySelectorAll('iframe')].forEach((f, i) => { f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><base href="${base}"><style>${StudioEngine.css}</style></head><body style="margin:0;background:#fff">${pages[i]}</body></html>`; });
+        [...tr.querySelectorAll('iframe')].forEach((f, i) => { f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><base href="${base}"><link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script><style>${StudioEngine.css}</style></head><body style="margin:0;background:#fff">${pages[i]}</body></html>`; });
         slide = Math.min(slide, Math.max(0, pages.length - 1)); go(0);
         $('#st-cap').textContent = d.caption;
       }
@@ -159,15 +159,20 @@
       function dl(url, name) { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
       async function png(d, btn) {
         if (!edits[d.id] && opts.exact) { try { const ex = await opts.exact(d.id); if (ex && ex.length) { ex.forEach((x, i) => dl(x, 'DLG-' + d.id + '-slide-' + (i + 1) + '.jpg')); return; } } catch (_) {} }
-        if (!window.html2canvas) { btn.textContent = 'Loading...'; await new Promise((res) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = res; s.onerror = res; document.head.appendChild(s); }); }
-        if (!window.html2canvas) { btn.textContent = 'Could not load'; return; }
         const fr = [...root.querySelectorAll('#st-tr iframe')], o = btn.textContent;
         for (let i = 0; i < fr.length; i++) {
           btn.textContent = 'Rendering ' + (i + 1) + '/' + fr.length;
-          const art = fr[i].contentDocument.querySelector('article'); if (!art) continue;
-          const c = await html2canvas(art, { scale: 2, backgroundColor: '#F7F7F5', useCORS: true, logging: false, width: 1080, height: 1350, windowWidth: 1080, windowHeight: 1350 });
-          await new Promise((res) => c.toBlob((b) => { dl(URL.createObjectURL(b), 'DLG-' + d.id + '-slide-' + (i + 1) + '.png'); res(); }, 'image/png'));
-          await new Promise((r) => setTimeout(r, 250));
+          const w = fr[i].contentWindow, doc = fr[i].contentDocument, art = doc.querySelector('article');
+          if (!art || !w.htmlToImage) { btn.textContent = 'Not ready, try again'; setTimeout(() => btn.textContent = o, 1500); return; }
+          await doc.fonts.ready;
+          const cv = art.querySelector('.canvas'), prev = cv.getAttribute('style'), t1 = [...art.querySelectorAll('.gt1 span:first-child')];
+          cv.style.setProperty('background-image', 'radial-gradient(70% 50% at 50% 0%, rgba(255,255,255,.75), rgba(0,0,0,0) 70%), linear-gradient(#F5F5F3, #F0F0EE)', 'important');
+          t1.forEach((e) => { e.style.overflow = 'visible'; e.style.textOverflow = 'clip'; });
+          const gr = [...art.querySelectorAll('.grc')]; gr.forEach((e) => { e.style.marginLeft = '10px'; });
+          const blob = await w.htmlToImage.toBlob(art, { pixelRatio: 2, cacheBust: true, width: 1080, height: 1350, backgroundColor: '#F7F7F5' });
+          if (prev == null) cv.removeAttribute('style'); else cv.setAttribute('style', prev); t1.forEach((e) => { e.style.overflow = ''; e.style.textOverflow = ''; }); gr.forEach((e) => { e.style.marginLeft = ''; });
+          dl(URL.createObjectURL(blob), 'DLG-' + d.id + '-slide-' + (i + 1) + '.png');
+          await new Promise((r) => setTimeout(r, 300));
         }
         btn.textContent = o;
       }

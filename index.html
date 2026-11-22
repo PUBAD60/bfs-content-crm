@@ -152,7 +152,7 @@ let STU=null;
 function renderStudio(v){
   if(STU&&v.querySelector('.st-wrap')){STU.setQuery(Q);return}
   v.innerHTML='';const box=document.createElement('div');v.appendChild(box);
-  const go=()=>{if(!window.Studio||!window.StudioEngine){setTimeout(go,100);return}STU={setQuery(q){}};const st=Object.create(window.Studio);st.mount(box,DATA.scripts||[],{q:Q,exact:async id=>{const it=DATA.items.find(x=>x.id==='DLG-'+id);if(!it||!it.slides)return null;const o=[];for(const s of it.slides)o.push(await media(s));return o}});STU=st};go()}
+  const go=()=>{if(!window.Studio||!window.StudioEngine){setTimeout(go,100);return}STU={setQuery(q){}};const st=Object.create(window.Studio);st.mount(box,DATA.scripts||[],{q:Q,select:STUSEL,exact:async id=>{const it=DATA.items.find(x=>x.id==='DLG-'+id);if(!it||!it.slides)return null;const o=[];for(const s of it.slides)o.push(await media(s));return o}});STU=st};go()}
 function renderPosts(v){
   const items=DATA.items.filter(i=>passes(i));
   const order={rec:(a,b)=>(b.recommended-a.recommended)||(a.kind==='built'?-1:1)-(b.kind==='built'?-1:1)||a.id.localeCompare(b.id,undefined,{numeric:true}),
@@ -180,7 +180,9 @@ function card(i){const built=i.kind==='built';
    <span class="badge ${built?'b-built':'b-idea'}">${built?'Built':'Idea'}</span>${i.recommended?'<span class="badge b-rec">Top pick</span>':''}</div>
    <div class="cb"><h3>${esc(i.title)}</h3><div class="tg">${i.magnet?`<span class="tag k">${esc(i.magnet)}</span>`:''}<span class="tag">${esc(i.topic)}</span>${i.stages.slice(0,3).map(s=>`<span class="tag">Stage ${s}</span>`).join('')}${i.roles.slice(0,2).map(r=>`<span class="tag">${esc(r)}</span>`).join('')}</div></div></div>`}
 
+let STUSEL=null;
 async function openItem(id){const i=DATA.items.find(x=>x.id===id);if(!i)return;const mb=$('#mb');
+  if(id.startsWith('DLG-')){STUSEL=id.slice(4);TAB='studio';STU=null;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t==='studio'));window.scrollTo(0,0);render();return}
   const sec=(t,b)=>b?`<h3>${t}</h3>${b}`:'';const pre=t=>t?`<pre>${esc(t)}</pre>`:'';
   mb.innerHTML=`<button class="btn sm x" id="xm">Close</button><div class="mono" style="color:var(--blue);font-size:13px">${esc(i.id)} · ${esc(i.source)}</div><h2>${esc(i.title)}</h2>
    <div class="tg" style="margin-top:8px"><span class="tag">${esc(i.status)}</span>${i.value?`<span class="tag">Value: ${esc(i.value)}</span>`:''}${i.magnet?`<span class="tag k">${esc(i.magnet)}</span>`:''}<span class="tag">${esc(i.topic)}</span>${i.stages.map(s=>`<span class="tag">Stage ${s}</span>`).join('')}${i.roles.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}${i.motion.map(r=>`<span class="tag">${esc(r)}</span>`).join('')}</div>

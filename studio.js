@@ -219,7 +219,7 @@
   };
   const banner = (p) => {
     const d = p.d, b = p.banner, sl = p.kind === "slack";
-    return `<div class="gto"><span class="glg">${sl ? LOGO(34) : GM}</span><div class="gtb"><div class="gt1"><span>${sl ? "Slack" : "Gmail"} · ${esc(clean(d.where))}</span><span>now</span></div><div class="gt2">${esc(b.who)}</div><div class="gt3">${esc(b.text)}</div></div></div>`;
+    return `<div class="gto${sl ? "" : " gto-g"}"><span class="glg">${sl ? LOGO(34) : GM}</span><div class="gtb"><div class="gt1"><span>${sl ? "Slack" : "Gmail"} · ${esc(clean(d.where))}</span><span>now</span></div><div class="gt2">${esc(b.who)}</div><div class="gt3">${esc(b.text)}</div></div></div>`;
   };
   const chat = (p, k) => (p.error ? `<div class="gscr gerr">${esc(p.error)}</div>` : (p.kind === "email" ? gmail(p, k) : slack(p, k)) + (k === 1 ? banner(p) : ""));
 
@@ -313,6 +313,7 @@
     .s3g .gtb { min-width: 0; flex: 1; }
     .s3g .gt1 { font-size: 16px; line-height: 20px; color: #C3C5CA; display: flex; justify-content: space-between; gap: 12px; white-space: nowrap; } .s3g .gt1 span:first-child { overflow: hidden; text-overflow: ellipsis; }
     .s3g .gt2 { font-size: 21px; line-height: 26px; font-weight: 800; color: #fff; margin-top: 2px; white-space: nowrap; }
+    .s3g .gto-g { font-family: Roboto, sans-serif; } .s3g .gto-g .gt2 { font-weight: 500; font-size: 20px; letter-spacing: 0; } .s3g .gto-g .gt1 { font-weight: 400; } .s3g .gto-g .gt3 { font-weight: 400; color: #D4D6DB; }
     .s3g .gt3 { font-size: 18px; line-height: 22px; max-height: 44px; color: #E6E7EA; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
     .s3g .gerr { background: #400; color: #fff; padding: 40px; font: 700 26px/1.4 sans-serif; }
   `;
