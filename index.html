@@ -117,7 +117,11 @@ async function open_(pass){const st=await (await fetch('salt.txt?t='+Date.now())
 $('#gf').addEventListener('submit',async e=>{e.preventDefault();$('#err').textContent='';$('#go').textContent='Opening...';
   try{await open_($('#pw').value);try{sessionStorage.setItem('bfs_pw',$('#pw').value)}catch(_){}start()}
   catch(_){$('#err').textContent='Wrong passphrase.';$('#go').textContent='Open'}});
-(async()=>{let p=null;try{p=sessionStorage.getItem('bfs_pw')}catch(_){}if(p){try{await open_(p);start()}catch(_){}}})();
+(async()=>{let p=null;try{p=sessionStorage.getItem('bfs_pw')}catch(_){}
+  if(p){try{await open_(p);start();return}catch(_){try{sessionStorage.removeItem('bfs_pw')}catch(_){}}}
+  /* allow-listed IP: the key worker hands over the passphrase, so this device opens without typing */
+  try{const r=await fetch('https://bfs-crm-key.builtforsaas-cora.workers.dev',{cache:'no-store'});
+    if(r.ok){const k=(await r.text()).trim();await open_(k);try{sessionStorage.setItem('bfs_pw',k)}catch(_){}start()}}catch(_){}})();
 
 function start(){$('#gate').style.display='none';$('#app').style.display='block';render()}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;OPEN=null;
