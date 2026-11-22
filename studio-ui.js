@@ -94,8 +94,10 @@
           <div class="row"><div><label>Keyword</label><input data-f="kw" value="${esc(d.kw)}"></div><div><label>Pillar</label><input data-f="pillar" value="${esc(d.pillar)}"></div></div></div>`;
       }
 
+      let tok = 0;
       async function renderPreview() {
-        const d = cur(sel); await ensureFonts();
+        const my = ++tok, d = cur(sel); await ensureFonts();
+        if (my !== tok) return;
         StudioEngine.setData(all());
         const r = StudioEngine.build(sel), err = $('#st-err');
         if (r.error) { err.style.display = 'block'; err.textContent = r.error.replace(/^S3G \d+ \(.*?\) /, 'Does not fit. ') + ' Shorten a message, or add or remove a message, or fill Slide 2 heading to split it.'; }
