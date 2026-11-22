@@ -163,7 +163,7 @@
     const heights = pages.map((p, i) => p.some((x) => x.crop) ? WINC : Math.max(WIN_MIN, Math.min(WIN.h, Math.ceil(CHROME[kind] + PAD_T + usedH(p, gaps[i]) + PAD_B))));
     const p1 = pages[0];
     const kIt = p1.find((x) => x.key);
-    const p1r = p1.filter((x) => !x.crop), banner = kIt || p1r[p1r.length - 1];
+    const p1r = p1.filter((x) => !x.crop), banner = p1r[0]; // toast = first message, from the person who has the problem
     // "to" label: previous different speaker in original order; the first message says "to me"
     const all = [...lines, ...(closer ? [[last[last.length - 1].who, closer]] : [])];
     const toOf = (i) => { if (all[i][2]) return all[i][2]; for (let j = i - 1; j >= 0; j--) if (all[j][0] !== all[i][0]) return all[j][0]; for (let j = i + 1; j < all.length; j++) if (all[j][0] !== all[i][0]) return all[j][0]; return "me"; };

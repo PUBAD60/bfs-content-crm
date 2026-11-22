@@ -157,6 +157,16 @@
         if (act === 'png') await png(d, t);
       });
       function dl(url, name) { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+      let noiseP = null;
+      function noisePng() {
+        if (noiseP) return noiseP;
+        noiseP = new Promise((res) => {
+          const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .08 0 0 0 0 .09 0 0 0 0 .12 0 0 0 .07 0'/></filter><rect width='160' height='160' filter='url(#n)'/></svg>";
+          const im = new Image(); im.onload = () => { try { const c = document.createElement('canvas'); c.width = c.height = 160; c.getContext('2d').drawImage(im, 0, 0); res(c.toDataURL('image/png')); } catch (_) { res(null); } }; im.onerror = () => res(null);
+          im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        });
+        return noiseP;
+      }
       async function png(d, btn) {
         if (!edits[d.id] && opts.exact) { try { const ex = await opts.exact(d.id); if (ex && ex.length) { ex.forEach((x, i) => dl(x, 'DLG-' + d.id + '-slide-' + (i + 1) + '.jpg')); return; } } catch (_) {} }
         const fr = [...root.querySelectorAll('#st-tr iframe')], o = btn.textContent;
@@ -166,7 +176,8 @@
           if (!art || !w.htmlToImage) { btn.textContent = 'Not ready, try again'; setTimeout(() => btn.textContent = o, 1500); return; }
           await doc.fonts.ready;
           const cv = art.querySelector('.canvas'), prev = cv.getAttribute('style'), t1 = [...art.querySelectorAll('.gt1 span:first-child')];
-          cv.style.setProperty('background-image', 'radial-gradient(70% 50% at 50% 0%, rgba(255,255,255,.75), rgba(0,0,0,0) 70%), linear-gradient(#F5F5F3, #F0F0EE)', 'important');
+          const noise = await noisePng();
+          cv.style.setProperty('background-image', (noise ? 'url(' + noise + '), ' : '') + 'radial-gradient(70% 50% at 50% 0%, rgba(255,255,255,.75), rgba(0,0,0,0) 70%), linear-gradient(#F5F5F3, #F0F0EE)', 'important');
           t1.forEach((e) => { e.style.overflow = 'visible'; e.style.textOverflow = 'clip'; });
           const gr = [...art.querySelectorAll('.grc')]; gr.forEach((e) => { e.style.marginLeft = '10px'; });
           const blob = await w.htmlToImage.toBlob(art, { pixelRatio: 2, cacheBust: true, width: 1080, height: 1350, backgroundColor: '#F7F7F5' });
