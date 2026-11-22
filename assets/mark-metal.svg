@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <defs>
+    <!-- Black brushed-metal box gradient -->
+    <linearGradient id="boxMetal" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#2D3139"/>
+      <stop offset="28%" stop-color="#1A1D22"/>
+      <stop offset="65%" stop-color="#0E1014"/>
+      <stop offset="100%" stop-color="#060709"/>
+    </linearGradient>
+    <!-- Specular top-left studio light catch on box -->
+    <radialGradient id="boxSheen" cx="0.24" cy="0.06" r="0.78">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Box bevel rim -->
+    <linearGradient id="boxRim" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.65"/>
+    </linearGradient>
+    <!-- White metallic gradient for top & base logo pieces -->
+    <linearGradient id="whiteMetal" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="42%" stop-color="#F3F5F8"/>
+      <stop offset="78%" stop-color="#DCE1E8"/>
+      <stop offset="100%" stop-color="#C2C9D4"/>
+    </linearGradient>
+    <linearGradient id="whiteBevel" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8A93A2" stop-opacity="0.55"/>
+    </linearGradient>
+    <!-- Metallic BFS Blue (#0058F6) gradient for bottom-left wedge ONLY -->
+    <linearGradient id="blueMetal" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#4B92FF"/>
+      <stop offset="38%" stop-color="#0A64FF"/>
+      <stop offset="75%" stop-color="#0058F6"/>
+      <stop offset="100%" stop-color="#0039A8"/>
+    </linearGradient>
+    <linearGradient id="blueBevel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#99C2FF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#002775" stop-opacity="0.7"/>
+    </linearGradient>
+    <!-- Soft shadow for 3D extruded depth on the metal plate -->
+    <filter id="markDrop" x="-15%" y="-15%" width="135%" height="140%">
+      <feDropShadow dx="0" dy="3.5" stdDeviation="3" flood-color="#000000" flood-opacity="0.65"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="0.6" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- Black metallic rounded squircle box -->
+  <rect width="160" height="160" rx="36.8" fill="url(#boxMetal)"/>
+  <rect width="160" height="160" rx="36.8" fill="url(#boxSheen)"/>
+  <!-- Subtle horizontal brushed-steel micro-lines -->
+  <g stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="0.75">
+    <line x1="12" y1="26" x2="148" y2="26"/>
+    <line x1="8" y1="44" x2="152" y2="44"/>
+    <line x1="8" y1="62" x2="152" y2="62"/>
+    <line x1="8" y1="80" x2="152" y2="80"/>
+    <line x1="8" y1="98" x2="152" y2="98"/>
+    <line x1="8" y1="116" x2="152" y2="116"/>
+    <line x1="12" y1="134" x2="148" y2="134"/>
+  </g>
+  <rect x="0.75" y="0.75" width="158.5" height="158.5" rx="36" fill="none" stroke="url(#boxRim)" stroke-width="1.5"/>
+
+  <!-- BFS 3-piece metallic mark (inset ~18% each side: translate(11.2, 11.2) scale(0.86) puts 24..136 at 31.8..128.2) -->
+  <g transform="translate(11.2 11.2) scale(0.86)" filter="url(#markDrop)">
+    <!-- Top piece: White brushed metal -->
+    <path data-part="top" d="M24 24 L136 24 L80 80 L24 80 Z" fill="url(#whiteMetal)" stroke="url(#whiteBevel)" stroke-width="0.9" stroke-linejoin="round"/>
+    <!-- Base piece: White brushed metal -->
+    <path data-part="base" d="M96 80 L136 80 L136 136 L40 136 Z" fill="url(#whiteMetal)" stroke="url(#whiteBevel)" stroke-width="0.9" stroke-linejoin="round"/>
+    <!-- Bottom-left wedge: Metallic BFS Blue (#0058F6) ONLY -->
+    <path data-part="wedge" d="M24 91.31 L68.69 91.31 L24 136 Z" fill="url(#blueMetal)" stroke="url(#blueBevel)" stroke-width="0.9" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>BFS Content CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F7F7F5;--card:#fff;--ink:#141618;--mute:#5C6169;--faint:#8A9097;--line:#E3E4E1;--blue:#0058F6;--blueBg:#E6EEFF;--green:#0B7A55;--greenBg:#E5F6EE;--red:#B42318;--redBg:#FDECEB;--orange:#B54708;--orangeBg:#FEF0E4;--yellow:#8A6100;--yellowBg:#FEF6DA}
 *{box-sizing:border-box}html,body{margin:0}
@@ -87,12 +87,13 @@ select{height:34px;border:1px solid var(--line);border-radius:10px;background:#f
 <div id="app">
 <header class="top"><div class="hin">
 <div class="brand">BFS <span>Content CRM</span></div>
-<div class="tabs" id="tabs"><button data-t="posts" class="on">Posts</button><button data-t="magnets">Lead magnets</button><button data-t="books">Books</button></div>
+<div class="tabs" id="tabs"><button data-t="posts" class="on">Posts</button><button data-t="magnets">Lead magnets</button><button data-t="studio">Studio</button><button data-t="books">Books</button></div>
 <input class="search" id="q" placeholder="Search titles, captions, tags, keywords" aria-label="Search">
 </div></header>
 <div id="view"></div>
 </div>
 
+<script src="studio.js" defer></script><script src="studio-ui.js" defer></script>
 <div id="modal"><div class="mb" id="mb"></div></div>
 <div class="lbx" id="lb"><img alt=""></div>
 
@@ -124,7 +125,7 @@ $('#gf').addEventListener('submit',async e=>{e.preventDefault();$('#err').textCo
     if(r.ok){const k=(await r.text()).trim();await open_(k);try{sessionStorage.setItem('bfs_pw',k)}catch(_){}start()}}catch(_){}})();
 
 function start(){$('#gate').style.display='none';$('#app').style.display='block';render()}
-$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;OPEN=null;
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;OPEN=null;STU=null;
   document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));render()});
 $('#q').addEventListener('input',e=>{Q=e.target.value.toLowerCase();render()});
 
@@ -144,8 +145,14 @@ function passes(i,skip){if(Q&&!text(i).includes(Q))return false;
   for(const f of FACETS){if(f.k===skip)continue;const s=FILT[f.k];if(s&&s.size&&!f.get(i).some(v=>s.has(v)))return false}return true}
 
 function render(){const v=$('#view');
+  if(TAB==='studio')return renderStudio(v);
   if(TAB==='posts')return renderPosts(v);if(TAB==='magnets')return renderMagnets(v);renderBooks(v)}
 
+let STU=null;
+function renderStudio(v){
+  if(STU&&v.querySelector('.st-wrap')){STU.setQuery(Q);return}
+  v.innerHTML='';const box=document.createElement('div');v.appendChild(box);
+  const go=()=>{if(!window.Studio||!window.StudioEngine){setTimeout(go,100);return}STU={setQuery(q){}};const st=Object.create(window.Studio);st.mount(box,DATA.scripts||[],{q:Q,exact:async id=>{const it=DATA.items.find(x=>x.id==='DLG-'+id);if(!it||!it.slides)return null;const o=[];for(const s of it.slides)o.push(await media(s));return o}});STU=st};go()}
 function renderPosts(v){
   const items=DATA.items.filter(i=>passes(i));
   const order={rec:(a,b)=>(b.recommended-a.recommended)||(a.kind==='built'?-1:1)-(b.kind==='built'?-1:1)||a.id.localeCompare(b.id,undefined,{numeric:true}),
